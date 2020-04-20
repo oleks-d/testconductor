@@ -29,7 +29,5 @@
 <h1 class="text-danger"> Якщо лист прийшов у Спам <b>скопіюйте посилання<b> і <b>Вставте у стрічку броузера</b></h1>
 </div>
 </#if>
-<div class='row'>
-<img src="/img/helpimg2.png">
-</div>
+
 </@p.page>

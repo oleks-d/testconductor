@@ -165,8 +165,9 @@
             </tr>
 
             <#list exams as exam>
+
                 <tr>
-                    <td>${exam.examName}</td>
+                     <td>${exam.examName}</td>
                     <td>${exam.theme}</td>
                     <td>${exam.startDateTime}</td>
                     <td>${exam.endDateTime}</td>
@@ -176,7 +177,7 @@
                     <#if exam.result == -3 >
                         <td>N/A</td>
                     <#else>
-                    <#if exam.result != -2 >
+                    <#if exam.result != -2 && exam.result != -1>
                         <td>${exam.result}</td>
                     <#else>
                         <td>
@@ -195,12 +196,24 @@
                     <td>
                     ${exam.numberOfSessions} / ${exam.numberOfFinishedSessions}
                     </td>
+
                     <td>
                         <form action="/results" method = "get">
                         <input type="hidden" name="examID" value="${exam.id?c}">
                         <input type="hidden" name="_csrf" value="${_csrf.token}">
-                        <button class="btn btn-primary" type='submit'>Результати/Results</button>
-                        </form>
+                    <#if exam.result == -1>
+                        <button class="btn btn-primary" type='submit'>Результати</button>
+                    </#if>
+                   <#if exam.result == 0>
+                         <button class="btn btn-success" type='submit'>В процесі</button>
+                   </#if>
+                    <#if exam.result == 1>
+                        <div></div>
+                    </#if>
+                         </form>
+
+
+
                     </td>
 </#if>
 <#if p.s.isAdmin >
@@ -208,7 +221,7 @@
                         <form action="/delete_exam" method = "post">
                         <input type="hidden" name="examID" value="${exam.id?c}">
                         <input type="hidden" name="_csrf" value="${_csrf.token}">
-                        <button class="btn btn-danger" type='submit'>Видалити/Delete</button>
+                        <button class="btn btn-danger" type='submit'>Видалити</button>
                         </form>
                     </td>
 </#if>

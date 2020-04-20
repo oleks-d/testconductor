@@ -44,6 +44,10 @@ public class MainController {
     @Value("${app.datetime.format}")
     private String dateTimeFormat;
 
+    //TODO make custom
+    int DEFAULT_NUMBER_OF_QUESTIONS = 10;
+    int DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM = 16;
+
     @GetMapping(value="/")
     public ModelAndView showIndex(@RequestParam Map<String,String> parameters, HttpServletRequest request, Model model) {
 
@@ -117,7 +121,11 @@ public class MainController {
         if(!examName.equals("REWORK")){
             examName = groupsRepo.getOne(Long.valueOf(examName)).getGroupName(); // group name as exam name
         }
-        examsRepo.save(new Exam(examName, courseStartTime, courseEndTime, timeForCompletionInMinutes, theme, teacherName));
+
+        int numberOfQuestions = DEFAULT_NUMBER_OF_QUESTIONS;
+        if (theme.matches("FINAL.*"))
+            numberOfQuestions = DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM;
+        examsRepo.save(new Exam(examName, courseStartTime, courseEndTime, timeForCompletionInMinutes, numberOfQuestions,theme, teacherName));
 
         redirectAttr.addFlashAttribute("message", "Заняття для " + examName +" з Теми " + theme + " додано");
         return new ModelAndView("redirect:/");

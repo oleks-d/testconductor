@@ -13,6 +13,7 @@ public class Exam {
     private String startDateTime;
     private String endDateTime;
     private int timeForCompletionInMinutes;
+    private int numberOfQuestions;
     private String teacher;
 
 
@@ -34,13 +35,23 @@ public class Exam {
     public int getResult(){return result;}
 
 
-    public Exam(String examName, String startDateTime, String endDateTime, int timeForCompletionInMinutes, String theme, String teacher) {
+    public Exam(String examName, String startDateTime, String endDateTime, int timeForCompletionInMinutes, int numberOfQuestions, String theme, String teacher) {
         this.examName = examName;
         this.theme = theme;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.timeForCompletionInMinutes = timeForCompletionInMinutes;
+        this.numberOfQuestions = numberOfQuestions;
         this.teacher = teacher;
+    }
+
+
+    public int getNumberOfQuestions() {
+        return numberOfQuestions;
+    }
+
+    public void setNumberOfQuestions(int numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
     }
 
     public String getTeacher() {

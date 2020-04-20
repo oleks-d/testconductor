@@ -35,4 +35,5 @@
     <div><input class="btn btn-primary" type="submit" value="Send results"/></div>
 </form>
 </#if>
+<script></script>
 </@p.page>

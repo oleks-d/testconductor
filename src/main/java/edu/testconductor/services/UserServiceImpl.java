@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.HashSet;
 
-@Service
+//@Service
 public class UserServiceImpl implements IUserService {
     private UserRepo userRepository;
     //private RoleRepo roleRepository;

@@ -2,6 +2,8 @@ package edu.testconductor.services;
 
 import edu.testconductor.domain.*;
 import edu.testconductor.repos.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +35,8 @@ public class MainPageService {
     @Value("${app.datetime.format}")
     private String dateTimeFormat;
 
+    private static Logger logger = LoggerFactory.getLogger(MainPageService.class);
+
     public HashMap<String, Object> generateIndexPageParams(HashMap<String, Object> params){
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -57,16 +61,33 @@ public class MainPageService {
             for(Exam exam : exams) {
                 exam.numberOfSessions = sessionsRepo.getCountOfSessionsByExamID(exam);
                 exam.numberOfFinishedSessions = sessionsRepo.getCountOfFinishedSessionsByExamID(exam);
+                if(LocalDateTime.now().isAfter(LocalDateTime.parse(exam.getEndDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat))))
+                    exam.result = -1;
+                else if(LocalDateTime.now().isAfter(LocalDateTime.parse(exam.getStartDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat))))
+                    exam.result = 0;
+                else
+                    exam.result = 1;
             }
 
         } else if(user.isAdmin()) { // ADMIN
-            exams = (ArrayList<Exam>)examsRepo.findAllByOrderByStartDateTimeDesc();
-            themes = themeRepo.findAllByOrderByNameAsc();
-            groups = groupsRepo.findAllByOrderByGroupNameAsc();
+            if (exams == null) exams = (ArrayList<Exam>)examsRepo.findAllByOrderByStartDateTimeDesc();
+            if (themes == null) themes = themeRepo.findAllByOrderByNameAsc();
+            if (groups == null)groups = groupsRepo.findAllByOrderByGroupNameAsc();
+
+            for(Exam exam : exams) {
+                exam.numberOfSessions = sessionsRepo.getCountOfSessionsByExamID(exam);
+                exam.numberOfFinishedSessions = sessionsRepo.getCountOfFinishedSessionsByExamID(exam);
+            }
 
         } else { //STUDENT
-
-            StudentGroup group = groupsRepo.findByGroupName(user.getGroupName());
+            String groupName = user.getGroupName();
+            if(groupName.contains(Character.toString((char)160))) {
+                logger.warn("Found byaka for: " + username);
+                groupName = groupName.replace(Character.toString((char)160), " ");
+                user.setGroupName(groupName);
+                usersRepo.save(user);
+            }
+            StudentGroup group = groupsRepo.findByGroupName(groupName);
             //ArrayList<Long> processedExams = sessionRepo.findExamIDsByEmail(user.getEmail());
             //String listOfProcessedExams = processedExams.stream().map(Object::toString).collect(Collectors.joining(","));
 
@@ -81,11 +102,15 @@ public class MainPageService {
             //filter exams
             for(Exam e : exams){
                     for (StudentSession s : sessions)
-                        if (s.getExam().getId().equals(e.getId()))
+                        if (s.getExam().getId().equals(e.getId())) {
                             e.result = s.getResult();
-                if(!LocalDateTime.parse(e.getEndDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).isAfter(LocalDateTime.now())) {
+                            break;
+                        }
+                if(LocalDateTime.now().isAfter(LocalDateTime.parse(e.getEndDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat)))) {
                     if(e.getResult() == -2) // was not 'touched'
                         e.result = -3; // N/A
+                    if(e.getResult() == -1)
+                        e.result = 0;
                 }
 
             }

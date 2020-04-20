@@ -20,9 +20,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class StudentController {
@@ -55,6 +59,8 @@ public class StudentController {
 
     //TODO make custom
     int DEFAULT_NUMBER_OF_QUESTIONS = 10;
+
+    String QUESTIONS_SEPARATOR = ";";
 
     @Value("${app.datetime.format}")
     private String dateTimeFormat;
@@ -197,7 +203,7 @@ public class StudentController {
     public ModelAndView showRegistrationPage(@RequestParam Long examID, @RequestParam String userName, HttpServletRequest request) {
         //Iterable<Course> courses = coursesRepo.findAll();
 
-        String lang = (String)request.getSession().getAttribute("lang");
+        String lang = (String) request.getSession().getAttribute("lang");
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("examID", examID);
@@ -207,15 +213,15 @@ public class StudentController {
 
         LocalDateTime startTime = LocalDateTime.parse(exam.getStartDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat));
         LocalDateTime endTime = LocalDateTime.parse(exam.getEndDateTime(), DateTimeFormatter.ofPattern(dateTimeFormat));
-        if (LocalDateTime.now().isBefore(startTime)){
-            if(lang.equals("ENG"))
+        if (LocalDateTime.now().isBefore(startTime)) {
+            if (lang.equals("ENG"))
                 params.put("warning", "Too early. Exam will start at " + exam.getStartDateTime());
             else
                 params.put("warning", "Зарано. Заняття почнеться " + exam.getStartDateTime());
             return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
         }
-        if (LocalDateTime.now().isAfter(endTime)){
-            if(lang.equals("ENG"))
+        if (LocalDateTime.now().isAfter(endTime)) {
+            if (lang.equals("ENG"))
                 params.put("warning", "Exam already finished " + endTime);
             else
                 params.put("warning", "Заняття закінчилось " + endTime);
@@ -223,28 +229,75 @@ public class StudentController {
             return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
         }
 
+        StudentSession session = null;
         Iterable<StudentSession> sessions = sessionsRepo.findAllByEmail(user.getEmail());
-        for(StudentSession session : sessions){
-            if (session.getExam().getId().equals(examID)) { // was already generated
+        for (StudentSession existingSession : sessions) {
+            if (existingSession.getExam().getId().equals(examID)) { // was already generated
                 logger.info("Test was already processed : " + user.getName() + " " + user.getEmail());
-                if(lang.equals("ENG")) {
 
-                    params.put("warning", "Test was already processed: \n " + session.getEmail() + "\n" + session.getName());
-                } else {
-                    params.put("warning", "Тест вже був оброблений: \n " + session.getEmail() + "\n" + session.getName());
+                LocalDateTime expectedEndOfTest = LocalDateTime.parse(existingSession.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusMinutes(exam.getTimeForCompletionInMinutes());
+                LocalDateTime currentTime = LocalDateTime.now();
+
+                if(currentTime.isAfter(expectedEndOfTest)) {
+                    existingSession.setEndTime(expectedEndOfTest.format(DateTimeFormatter.ofPattern(dateTimeFormat)));
+                    existingSession.setResultString("");
+                    existingSession.setResult(0);
+                    sessionsRepo.save(existingSession);
+
+                    if (lang.equals("ENG")) {
+                        params.put("warning", "Time for test finished \n " );
+                    } else {
+                        params.put("warning", "Час на виконання скінчився \n " );
+                    }
+
+                    return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
                 }
 
-                return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
+                if (existingSession.getEndTime() == null) {
+                    session = existingSession;
+                    break;
+                } else {
+                    if (lang.equals("ENG")) {
+                        params.put("warning", "Test was already processed: \n " + existingSession.getEmail() + "\n" + existingSession.getName());
+                    } else {
+                        params.put("warning", "Тест вже був оброблений: \n " + existingSession.getEmail() + "\n" + existingSession.getName());
+                    }
+
+                    return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
+                }
             }
         }
 
-        StudentSession session = new StudentSession(user.getName(), user.getEmail(), user.getGroupName(), LocalDateTime.now().format(DateTimeFormatter.ofPattern(dateTimeFormat)), exam);
-        String code = generateCodeForStudent(user.getName(), examID);
-        session.setCode(code);
-        sessionsRepo.save(session);
+        List<Question> questions;
+        int timeout = exam.getTimeForCompletionInMinutes() * 60;
+        if (session == null){
+            session = new StudentSession(user.getName(), user.getEmail(), user.getGroupName(), LocalDateTime.now().format(DateTimeFormatter.ofPattern(dateTimeFormat)), exam);
 
-        List<Question> questions = generateQuestionsFor(exam);
-        params.put("timeout", exam.getTimeForCompletionInMinutes() * 60);
+            String code = generateCodeForStudent(user.getName(), examID);
+            session.setCode(code);
+
+            questions = generateQuestionsFor(exam);
+
+            String allQuestionIDs = questions.stream().map(q -> String.valueOf(q.getId())).collect(Collectors.joining(QUESTIONS_SEPARATOR));
+
+            session.setResultString(allQuestionIDs);
+
+            sessionsRepo.save(session);
+        } else {
+            questions = generateQuestionsFromResultOfExistingSession(session.getResultString());
+            if(questions == null){ // if no results string
+                questions = generateQuestionsFor(exam);
+            }
+
+            LocalDateTime expectedEndOfTest = LocalDateTime.parse(session.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusMinutes(exam.getTimeForCompletionInMinutes());
+            LocalDateTime currentTime = LocalDateTime.now();
+            Duration diff =  Duration.between(currentTime, expectedEndOfTest);
+
+            timeout = (int) diff.getSeconds();
+        }
+
+
+        params.put("timeout", timeout);
         params.put("studentCode", session.getCode());
         params.put("questions", questions);
         return new ModelAndView("examinationTest", params);
@@ -290,13 +343,22 @@ public class StudentController {
                 "Theme  :  " + exam.getExamName() + " - " + exam.getTheme() + "\n" +
                 "Start time:  " + session.getTime() + "\n" +
                 "End time  :  " + session.getEndTime() + "\n" +
-                "Result :  " + mark + "/" + DEFAULT_NUMBER_OF_QUESTIONS  + "\n" +
+                "Result :  " + mark + "/" + exam.getNumberOfQuestions()  + "\n" +
                 "Thank you";
 
-        emailService.sendSimpleMessage(session.getEmail(), "Result of test: " + exam.getExamName()+ " - " + exam.getTheme(), message);
-        redirectAttr.addFlashAttribute("message",  "Your result is : " + mark + "/" + DEFAULT_NUMBER_OF_QUESTIONS);
+        //emailService.sendSimpleMessage(session.getEmail(), "Result of test: " + exam.getExamName()+ " - " + exam.getTheme(), message);
+        redirectAttr.addFlashAttribute("message",  "Your result is : " + mark + "/" + exam.getNumberOfQuestions());
         //params.put("message", "Your result is : " + mark + "/" + DEFAULT_NUMBER_OF_QUESTIONS);
         return new ModelAndView("redirect:/");
+    }
+
+    private List<Question> generateQuestionsFromResultOfExistingSession(String resultString) {
+        ArrayList<Question> results = new ArrayList<Question>();
+        if(resultString == null || resultString.equals(""))
+            return null;
+        for(String id : resultString.split(QUESTIONS_SEPARATOR))
+            results.add(questionsRepo.getOne(Long.valueOf(id)));
+        return results;
     }
 
     ArrayList<Question> generateQuestionsFor(Exam exam){
@@ -306,7 +368,7 @@ public class StudentController {
         String UKR_LETTER2 = "о";
         String UKR_LETTER3 = "у";
 
-        int MAX_NUM_OF_QUESTIONS = DEFAULT_NUMBER_OF_QUESTIONS;
+        int MAX_NUM_OF_QUESTIONS = exam.getNumberOfQuestions();
 
         ArrayList<Question> results = new ArrayList<Question>();
         List<Question> allQuestionsForCourse = null;
@@ -320,14 +382,13 @@ public class StudentController {
                     int MAX_NUM_OF_QUESTIONS_PER_THEME = results.size() + 1; // one question per theme
                     Random random = new Random();
                     while (results.size() < MAX_NUM_OF_QUESTIONS_PER_THEME) {
-                        Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()));
+                        Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                         if (!results.contains(candidateItem))
                             results.add(candidateItem);
                     }
                 }
             }
-        }
-        if(exam.getTheme().equals("FINAL_UKR")){
+        } else if(exam.getTheme().equals("FINAL_UKR")){
 
             ArrayList<Theme> allThemes = (ArrayList<Theme>) themeRepo.findAllByOrderByNameAsc();
 
@@ -337,8 +398,8 @@ public class StudentController {
 
                     int MAX_NUM_OF_QUESTIONS_PER_THEME = results.size() + 1; // one question per theme
                     Random random = new Random();
-                    while (results.size() < MAX_NUM_OF_QUESTIONS) {
-                        Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()));
+                    while (results.size() < MAX_NUM_OF_QUESTIONS_PER_THEME) {
+                        Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                         if (!results.contains(candidateItem))
                             results.add(candidateItem);
                     }
@@ -350,7 +411,7 @@ public class StudentController {
 
             Random random = new Random();
             while (results.size() < MAX_NUM_OF_QUESTIONS) {
-                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()));
+                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                 if (!results.contains(candidateItem))
                     results.add(candidateItem);
             }

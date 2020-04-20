@@ -22,6 +22,7 @@ public class User implements UserDetails {
     private String email;
     private String code;
     private boolean active;
+    private String history;
     @ManyToMany(cascade=CascadeType.MERGE)
     @JoinTable(
             name="user_role",
@@ -38,7 +39,7 @@ public class User implements UserDetails {
     }
 
     public String getGroupName() {
-        return groupName;
+         return groupName;
     }
 
     public void setGroupName(String groupName) {
@@ -171,6 +172,14 @@ public class User implements UserDetails {
 //        this.roles = roles;
 //    }
 
+    public String getHistory() {
+        if(history == null)
+            return "";
+        return history;
+    }
 
+    public void setHistory(String history) {
+        this.history = history;
+    }
 
 }

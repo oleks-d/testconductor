@@ -5,6 +5,8 @@ import edu.testconductor.repos.GroupsRepo;
 import edu.testconductor.repos.QuestionsRepo;
 import edu.testconductor.repos.UserRepo;
 import edu.testconductor.services.EmailServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +47,8 @@ public class RegistrationController {
     @Value("${app.datetime.format}")
     private String dateTimeFormat;
 
+    private static Logger logger = LoggerFactory.getLogger(RegistrationController.class);
+
     @GetMapping(value="/registration")
     public ModelAndView registration(HttpServletRequest request) {
         String warning = (String)request.getSession().getAttribute("warning");
@@ -62,10 +66,19 @@ public class RegistrationController {
 
     @PostMapping(value = "/registration")
     public ModelAndView addStudent(@RequestParam String password, @RequestParam String email, @RequestParam String studentName, @RequestParam Long groupID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+
+        if(!email.toLowerCase().trim().matches("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+$")){
+            params.put("warning", "Неправильний формат Email / Wrong format of Email \n" + email);
+            Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
+            params.put("groups", groups);
+            return new ModelAndView("register", params);
+        }
+
+        email= email.toLowerCase().trim();
 
         User userFromDB = usersRepo.findByUsername(email);
 
-        HashMap<String, Object> params = new HashMap<String, Object>();
 
         if(userFromDB != null) {
             params.put("warning", "Користувач вже існує / User already exists! \n" + email);
@@ -84,6 +97,10 @@ public class RegistrationController {
         }
         String code = generateRegistrationCodeForStudent(studentName, email);
         String groupName = groupsRepo.getOne(groupID).getGroupName();
+        if(groupName.contains(Character.toString((char)160))) {
+            logger.warn("Found byaka for: " + email);
+            groupName = groupName.replace(Character.toString((char)160), " ");
+        }
         User user = new User(email, password, email, studentName, groupName, code);
         user.setActive(false);
         HashSet roles = new HashSet();
@@ -92,9 +109,9 @@ public class RegistrationController {
 
         String lang = groupsRepo.findByGroupName(user.getGroupName()).getLang();
         if(lang.equals("UKR"))
-            params.put("message", "Студент створений :  Код активації вислано " + email);
+            params.put("message", "Студент створений : ПОВІДОМТЕ ВЧИТЕЛЯ ");// Код активації вислано " + email);
         else
-            params.put("message", "User was created :  Activation code sent " + email);
+            params.put("message", "User was created :  NOTIFY YOUR TEACHER "); //Activation code sent " + email);
 
 
         String message = "";
@@ -113,13 +130,15 @@ public class RegistrationController {
              title = "Access to Test Portal";
         }
 
-        emailService.sendSimpleMessage(email, title, message);
+        //TODO TMP EMAIL SERVER
+        //emailService.sendSimpleMessage(email, title, message);
 
         usersRepo.save(user);
 
         params.put("email", email);
         params.put("lang", lang);
-        return new ModelAndView("registrationInfo", params);
+        return new ModelAndView("login", params);
+        //return new ModelAndView("registrationInfo", params);
     }
 
     private String getURLforStartTest(String code) {

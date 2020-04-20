@@ -7,28 +7,26 @@
 <form action="/results" method="get">
                 <div class="form-group">
                     <label> Заняття: </label>
-                      <select id="examID" name="examID">
+                      <select id="examID" name="examID" onchange="this.form.submit()">
                             <option value="">-</option>
                            <#list exams as exam>
                                 <option value="${exam.id?c}" <#if selectedExamID?has_content><#if exam.id == selectedExamID> selected </#if></#if> >${exam.examName} ${exam.theme} ${exam.startDateTime}</option>
                            </#list>
                        </select>
                 </div>
-                <div><input class="btn btn-primary" type="submit" value="Пошук"/></div>
                 </form>
 </div>
 <div class='col'>
-                       <form action="/results" method="get">
+                       <form action="/results" method="get"  >
                 <div class="form-group">
                 <label> Група: </label><br>
-               <select id="groupID" name="groupID">
+               <select id="groupID" name="groupID" onchange="this.form.submit()">
                      <option value="">-</option>
                      <#list groups as group>
                          <option value="${group.id?c}" <#if selectedGroup?has_content><#if group.groupName == selectedGroup> selected </#if></#if> >${group.groupName}</option>
                      </#list>
                  </select>
                  </div>
-    <div><input class="btn btn-primary" type="submit" value="Пошук"/></div>
 </form>
 </div>
 <div class='col'>

@@ -7,18 +7,16 @@
     </div>
            <div class="row">
 
-           <form action="/users?show" method = "post">
-           <input type="hidden" name="_csrf" value="${_csrf.token}">
+           <form action="/users" method = "get">
 
                 <div class="form-group">
                 <label> Theme </label>
-               <select id="groupID" name="groupID">
+               <select id="groupID" name="groupID"  onchange="this.form.submit()">
                      <#list groups as group>
-                         <option value="${group.id?c}" <#if selectedGroup?has_content><#if group.groupName == selectedGroup> selected </#if></#if> >${group.groupName}</option>
+                         <option value="${group.id?c}" <#if groupID?has_content><#if group.id?c == groupID> selected </#if></#if> >${group.groupName}</option>
                      </#list>
                  </select>
                  </div>
-                 <div><input class="btn btn-primary" type="submit" value="Show Students"/></div>
             </form>
        </div>
        <div class="row">
@@ -38,8 +36,21 @@
                     <td>${user.email}</td>
                     <td>${user.name}</td>
                     <td>${user.groupName}</td>
-                    <td>${user.active?string("yes", "no")}</td>
+                    <td>${user.active?string("yes", "no")}
+                        <form action="/activateUser" method = "post">
+                        <input type="hidden" name="userID" value="${user.id?c}">
+                        <input type="hidden" name="requestedBy" value="${p.s.name}">
+                        <input type="hidden" name="_csrf" value="${_csrf.token}">
 
+                        <td><button class="btn btn-primary" type='submit'>
+                        <#if user.active?string("yes", "no") == "yes">
+                            Deactivate
+                        <#else>
+                            Activate
+                        </#if>
+                        </button></td>
+                        </form>
+                    </td>
                     <td>
                         <form action="/results" method = "get">
                         <input type="hidden" name="userEmail" value="${user.email}">
@@ -55,7 +66,7 @@
 
             <#list users as user>
                 <tr>
-                     <form action="/users?edit" method = "post">
+                     <form action="/userEdit" method = "post">
                     <td><input name = "userEmail" value = "${user.email}"></input></td>
                     <td><input name = "userName" value = "${user.name}"></input></td>
                     <td><input name = "userGroup" value = "${user.groupName}"></input></td>
@@ -67,6 +78,21 @@
                         <td><button class="btn btn-primary" type='submit'>Save</button></td>
                         </form>
 
+
+                        <form action="/activateUser" method = "post">
+                        <input type="hidden" name="userID" value="${user.id?c}">
+                        <input type="hidden" name="requestedBy" value="${p.s.name}">
+                        <input type="hidden" name="_csrf" value="${_csrf.token}">
+
+                        <td><button class="btn btn-primary" type='submit'>
+                        <#if user.active?string("yes", "no") == "yes">
+                            Deactivate
+                        <#else>
+                            Activate
+                        </#if>
+                        </button></td>
+                        </form>
+                    </td>
                     <td>
                         <form action="/results" method = "get">
                         <input type="hidden" name="userEmail" value="${user.email}">
@@ -75,11 +101,16 @@
                     </td>
 
                     <td>
-                        <form action="/users?delete" method = "post">
+                        <form action="/userDelete" method = "post">
                         <input type="hidden" name="userToDeleteID" value="${user.id?c}">
                         <input type="hidden" name="_csrf" value="${_csrf.token}">
                         <button class="btn btn-danger" type='submit'>Delete</button>
                         </form>
+                    </td>
+                    <td>
+                    <#if user.history?has_content>
+                    ${user.history}
+                    </#if>
                     </td>
 
                 </tr>

@@ -9,5 +9,6 @@ public interface QuestionsRepo extends CrudRepository <Question, Long> {
 
     List<Question> findAllByTheme(String theme);
     List<Question> findAllByText(String text);
+    Question getOne(Long id);
 
 }
