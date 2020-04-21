@@ -183,39 +183,3 @@ insert into  STUDENT_GROUP (ID, GROUP_NAME) values ( 1,' 1A', 'UKR')
 , ( 179,'89B', 'ENG')
 , ( 180,'90B', 'ENG');
 
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (1, TRUE, 'odyachuk@yahoo.com', 'innadmin12','innadmin', 'Komarovska I. V.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (1, 1), (1, 2);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (2, TRUE, 'malachkovanataliia@gmail.com', 'mnvpass31','mnv','Malachkova N.V.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (2, 1), (2, 2);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (3, TRUE, 'spveretelnyk@gmail.com', 'spvpass45','spv','Veretelnyk S.P.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (3, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (5, TRUE, 'dr.yatsengo@gmail.com', 'yda13pass','yda','Yatsenko D. A.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (5, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (6, TRUE, 'androlga@gmail.com', 'aoo31pass','aoo','Andrushkova O. O.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (6, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (7, TRUE, 'shepelyuk.g.g@gmail.com', 'ngg42pass','ngg','Nazarchuk G. G');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (7, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (8, TRUE, 'gkatyarina@gmail.com', 'hky32pass','hky','Hrizhymalska K. Y.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (8, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (9, TRUE, 'komnatskaya1988@gmail.com', 'kkm54pass','kkm','Komnatskaya K. M.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (9, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (10, TRUE, 'gtatyana@email.ua', 'ztm17pass','ztm','Zhmud T. M.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (10, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (11, TRUE, 'kryvetska.n@gmail.com', 'knv43pass','knv','Kryvetska N. V.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (11, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (12, TRUE, 'kukuruzatatyana7@gmail.com', 'kty36pass','kty','Kukuruza T. Y.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (12, 1);
-
-insert into SYSTEM_USERS (ID, ACTIVE, EMAIL, PASSWORD, USERNAME, NAME) values (13, TRUE, 't@t.edu', 'ttt12','TTT','Teacher T. T.');
-insert into USER_ROLE (USER_ID, ROLE_ID) values (13, 1);
