@@ -16,10 +16,10 @@ import java.util.Properties;
 @Configuration
 public class BeanConfiguration implements WebMvcConfigurer {
 
-    @Value("${registration.email}")
+    //@Value("${registration.email}")
     private String registrationEmail;
 
-    @Value("${registration.password}")
+    //@Value("${registration.password}")
     private String registrationPassword;
 
     @Bean
