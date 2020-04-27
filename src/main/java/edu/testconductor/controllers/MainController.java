@@ -3,6 +3,8 @@ package edu.testconductor.controllers;
 import edu.testconductor.domain.*;
 import edu.testconductor.repos.*;
 import edu.testconductor.services.MainPageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +49,8 @@ public class MainController {
     //TODO make custom
     int DEFAULT_NUMBER_OF_QUESTIONS = 10;
     int DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM = 16;
+
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
     @GetMapping(value="/")
     public ModelAndView showIndex(@RequestParam Map<String,String> parameters, HttpServletRequest request, Model model) {

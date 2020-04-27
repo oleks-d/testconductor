@@ -65,143 +65,8 @@ public class StudentController {
     @Value("${app.datetime.format}")
     private String dateTimeFormat;
 
-    @GetMapping(value="/register_for_test")
-    public ModelAndView showRegistrationStudentPage(@RequestParam("examID") Optional<String> examID) {
-        Iterable<Exam> exams = examsRepo.findAll();
-        Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
-
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        if( examID.isPresent()) {
-            Exam results = examsRepo.findById(Long.parseLong(examID.get())).get();
-            params.put("selectedExam", examID.get());
-            params.put("selectedExamLabel", results.getExamName() + " " + results.getTheme()+ " " + results.getStartDateTime());
-
-        }
-
-        params.put("groups", groups);
-        params.put("exams", exams);
-        return new ModelAndView("examinationRegistration", params);
-
-    }
-
-//    @PostMapping(value="/register_for_test")
-//    public ModelAndView generateCodeForTest(@RequestParam String studentName, @RequestParam String studentEmail, @RequestParam String groupName, @RequestParam Long examID) {
-//        Iterable<StudentGroup> groups = groupsRepo.findAll();
-//        Iterable<Exam> exams = examsRepo.findAll();
-//        Exam exam = examsRepo.findById(examID).get();
-//
-//        HashMap<String, Object> params = new HashMap<String, Object>();
-//        Iterable<StudentSession> sessions = sessionsRepo.findAllByEmail(studentEmail);
-//        for(StudentSession session : sessions){
-//            if (session.getExam().equals(examID)) { // was already generated
-//                logger.info("Already generated : " + studentName + " " + studentEmail);
-//                params.put("exams", exams);
-//                params.put("group", groups);
-//                params.put("selectedExam", examID);
-//                params.put("selectedExamLabel", exam.getExamName() + " " + exam.getTheme()+ " " + exam.getStartDateTime());
-//                params.put("warning", "Code was already generated for this email for: \n " + session.getEmail() + "\n" + session.getName());
-//                return new ModelAndView("examinationRegistration", params);
-//            }
-//        }
-//
-//        LocalDateTime startTime = LocalDateTime.parse(exam.getStartDateTime(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT));
-//        LocalDateTime endTime = LocalDateTime.parse(exam.getEndDateTime(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT));
-//        if (LocalDateTime.now().isBefore(startTime)){
-//            logger.info("Too early for : " + studentName + " " + studentEmail);
-//            params.put("exams", exams);
-//            params.put("group", groups);
-//            params.put("selectedExam", examID);
-//            params.put("selectedExamLabel", exam.getExamName() + " " + exam.getTheme()+ " " + exam.getStartDateTime());
-//            params.put("warning", "Too early. Exam will start at " + exam.getStartDateTime());
-//            return new ModelAndView("examinationRegistration", params);
-//        }
-//        if (LocalDateTime.now().isAfter(endTime)){
-//            logger.info("Too late for : " + studentName + " " + studentEmail);
-//            params.put("exams", exams);
-//            params.put("group", groups);
-//            params.put("selectedExam", exam.getId());
-//            params.put("selectedExamLabel", exam.getExamName() + " " + exam.getTheme()+ " " + exam.getStartDateTime());
-//            params.put("warning", "Exam already finished " + endTime);
-//            return new ModelAndView("examinationRegistration", params);
-//        }
-//
-//        logger.info("Session was created for : " + studentName + " " + studentEmail);
-//        // save session and code
-//        StudentSession session = new StudentSession(studentName, studentEmail, groupName, LocalDateTime.now().format(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)), examID);
-//
-//                String code = generateCodeForStudent(session, studentName,  examID);
-//
-//        String message = "Please use following code to start test:\n" + code +
-//                "\n\nExam: " + exam.getExamName() + " - " + exam.getTheme() + "\n" +
-//                //+ getURLforStartTest(code) + "\n" +
-//                "Start time: " + exam.getStartDateTime() + "\n" +
-//                "End time: " + exam.getEndDateTime() + " \n" +
-//                "Thank you";
-//
-//        logger.info("Sending message for : " + studentName + " " + studentEmail);
-//        emailService.sendSimpleMessage(studentEmail, "Code for test: " + exam.getExamName()+ " - " + exam.getTheme(), message);
-//        logger.info("Sending message for (done): " + studentName + " " + studentEmail);
-//        params.put("message", "Your code was generated and sent by email: " + studentEmail);
-//
-//        return new ModelAndView("examinationRegistration", params);
-//    }
-
-//    private String getURLforStartTest(String code) {
-//        ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath();
-//        URI newUri = builder.build().toUri();
-//        return newUri.toString() + "/start_test?code=" + code;
-//    }
-
-
-//    @GetMapping(value="/start_test", params = "test")
-//    public ModelAndView showRegistrationPage(@RequestParam String code, Model model) {
-//        //Iterable<Course> courses = coursesRepo.findAll();
-//
-//        HashMap<String, Object> params = new HashMap<String, Object>();
-//        params.put("code", code);
-//        return new ModelAndView("examinationStart", params);
-//    }
-//
-//    @PostMapping(value="/start_test")
-//    public ModelAndView startTest(@RequestParam String studentCode) {
-//        HashMap<String, Object> params = new HashMap<String, Object>();
-//        StudentSession session = sessionsRepo.findByCode(studentCode);
-//        if (session == null) { // was not generated
-//                params.put("warning", "Unknown code (check code in Email)");
-//                return new ModelAndView("examinationRegistration", params);
-//        } else {
-//            if(session.getResult() != -1){
-//                params.put("warning", "Test already processed (check results in Email)");
-//                return new ModelAndView("examinationRegistration", params);
-//            }
-//        }
-//
-//        Exam exam = examsRepo.findById(session.getExam()).get();
-//        LocalDateTime startTime = LocalDateTime.parse(exam.getStartDateTime(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT));
-//        LocalDateTime endTime = LocalDateTime.parse(exam.getEndDateTime(), DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT));
-//        if (LocalDateTime.now().isBefore(startTime)){
-//            params.put("warning", "Too early. Exam will start at " + exam.getStartDateTime());
-//            return new ModelAndView("examinationRegistration", params);
-//        }
-//        if (LocalDateTime.now().isAfter(endTime)){
-//            params.put("warning", "Exam already finished " + endTime);
-//            return new ModelAndView("examinationRegistration", params);
-//        }
-//
-//        session.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT)));
-//
-//        sessionsRepo.save(session);
-//
-//        List<Question> questions = generateQuestionsFor(exam);
-//        params.put("timeout", exam.getTimeForCompletionInMinutes() * 60);
-//        params.put("studentCode", studentCode);
-//        params.put("questions", questions);
-//        return new ModelAndView("examinationTest", params);
-//    }
-
     @PostMapping(value="/start_test")
-    public ModelAndView showRegistrationPage(@RequestParam Long examID, @RequestParam String userName, HttpServletRequest request) {
-        //Iterable<Course> courses = coursesRepo.findAll();
+    public ModelAndView prepareExaminationPage(@RequestParam Long examID, @RequestParam String userName, HttpServletRequest request) {
 
         String lang = (String) request.getSession().getAttribute("lang");
 
@@ -233,7 +98,7 @@ public class StudentController {
         Iterable<StudentSession> sessions = sessionsRepo.findAllByEmail(user.getEmail());
         for (StudentSession existingSession : sessions) {
             if (existingSession.getExam().getId().equals(examID)) { // was already generated
-                logger.info("Test was already processed : " + user.getName() + " " + user.getEmail());
+                logger.warn("Test was already processed : " + user.getName() + " " + user.getEmail());
 
                 LocalDateTime expectedEndOfTest = LocalDateTime.parse(existingSession.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusMinutes(exam.getTimeForCompletionInMinutes());
                 LocalDateTime currentTime = LocalDateTime.now();
@@ -249,7 +114,7 @@ public class StudentController {
                     } else {
                         params.put("warning", "Час на виконання скінчився \n " );
                     }
-
+                    logger.warn("Time finished " + existingSession.getName() + " " + existingSession.getExam().getId());
                     return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
                 }
 
@@ -262,7 +127,7 @@ public class StudentController {
                     } else {
                         params.put("warning", "Тест вже був оброблений: \n " + existingSession.getEmail() + "\n" + existingSession.getName());
                     }
-
+                    logger.warn("Second attempt (1) " + existingSession.getName() + " " + existingSession.getExam().getId());
                     return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
                 }
             }
@@ -283,6 +148,7 @@ public class StudentController {
             session.setResultString(allQuestionIDs);
 
             sessionsRepo.save(session);
+            logger.info("Session started " + session.getName() + " " + session.getExam().getId());
         } else {
             questions = generateQuestionsFromResultOfExistingSession(session.getResultString());
             if(questions == null){ // if no results string
@@ -294,8 +160,9 @@ public class StudentController {
             Duration diff =  Duration.between(currentTime, expectedEndOfTest);
 
             timeout = (int) diff.getSeconds();
-        }
 
+            logger.warn("Session restored " + session.getName() + " " + session.getExam().getId());
+        }
 
         params.put("timeout", timeout);
         params.put("studentCode", session.getCode());
@@ -317,24 +184,38 @@ public class StudentController {
                 continue;
             Question question = questionsRepo.findAllByText(questionText).get(0);
             resultString = resultString + "\n\n" + questionText + " \n Answer: " + allAnswers.get(questionText) + "\nExpected: " + question.getCorrectAnswer();
-            if(question.getCorrectAnswer().equals(allAnswers.get(questionText))){
+            if(makeComparable(question.getCorrectAnswer()).equals( makeComparable(allAnswers.get(questionText)))){
                 mark++;
             }
         }
         StudentSession session = sessionsRepo.findByCode(allAnswers.get("studentCode"));
+
+
         if(session.getResult() > -1){
             if(lang.equals("ENG")) {
                 params.put("warning", "Test was already processed: \n " + session.getResult() + " "  + session.getEndTime());
             } else {
                 params.put("warning", "Тест вже був оцінений: \n " + session.getResult() + " " + session.getEndTime());
             }
+            logger.warn("Second attempt " + session.getName() + " " + session.getExam().getId());
             return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
+        } else { // check if timeout was reached
+            LocalDateTime startTime = LocalDateTime.parse(session.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat));
+            LocalDateTime endTime = LocalDateTime.now();
+            int timeForCompletion = session.getExam().getTimeForCompletionInMinutes();
+            Duration diff =  Duration.between(startTime, endTime);
+            if( diff.toMinutes() >  timeForCompletion) {
+                resultString = "TIMEOUT\n\n" + resultString;
+                logger.warn("Timeout " + session.getName() + " " + session.getExam().getId());
+            }
         }
 
         session.setResult(mark);
         session.setResultString(resultString);
         session.setEndTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(dateTimeFormat )));
         sessionsRepo.save(session);
+
+        logger.info("Test finished " + session.getName() + " " + session.getExam().getId());
 
         Exam exam = examsRepo.findById(session.getExam().getId()).get();
 
@@ -350,6 +231,10 @@ public class StudentController {
         redirectAttr.addFlashAttribute("message",  "Your result is : " + mark + "/" + exam.getNumberOfQuestions());
         //params.put("message", "Your result is : " + mark + "/" + DEFAULT_NUMBER_OF_QUESTIONS);
         return new ModelAndView("redirect:/");
+    }
+
+    private String makeComparable(String s) {
+        return s.toLowerCase().replaceAll("[^a-zA-Z0-9а-яА-Я]","");
     }
 
     private List<Question> generateQuestionsFromResultOfExistingSession(String resultString) {

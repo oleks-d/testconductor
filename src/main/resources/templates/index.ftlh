@@ -221,7 +221,7 @@
                         <form action="/delete_exam" method = "post">
                         <input type="hidden" name="examID" value="${exam.id?c}">
                         <input type="hidden" name="_csrf" value="${_csrf.token}">
-                        <button class="btn btn-danger" type='submit'>Видалити</button>
+                        <button class="btn btn-danger" type="button" onclick = 'var result = confirm("Want to delete?"); if (result){ this.form.submit()};'  >Видалити</button>
                         </form>
                     </td>
 </#if>

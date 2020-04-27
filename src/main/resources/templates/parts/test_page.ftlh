@@ -33,7 +33,8 @@ document.getElementById("testForm").submit();
     <div class="container">
 
     <#if timeout?has_content>
-    <div class='row'><h2>Time left: <div id = 'timer'>TIMER</div></h2></div>
+
+    <div class='row'><h2>Time left/Часу лишилось: <div id = 'timer'>${timeout} seconds</div></h2></div>
         </#if>
 
 <#nested>

@@ -30,6 +30,8 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -56,9 +58,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
-
 @Controller
 public class ViewResultsController {
+
+    private static Logger logger = LoggerFactory.getLogger(ViewResultsController.class);
 
     @Autowired
     private StudentSessionRepo sessionsRepo;

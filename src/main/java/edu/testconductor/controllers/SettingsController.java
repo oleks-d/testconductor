@@ -6,6 +6,8 @@ import edu.testconductor.domain.User;
 import edu.testconductor.repos.GroupsRepo;
 import edu.testconductor.repos.UserRepo;
 import edu.testconductor.services.EmailServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ public class SettingsController {
 
     @Autowired
     private GroupsRepo groupsRepo;
+
+    private static Logger logger = LoggerFactory.getLogger(SettingsController.class);
 
     @PreAuthorize("hasAuthority(2)")
     @GetMapping(value="/settings")

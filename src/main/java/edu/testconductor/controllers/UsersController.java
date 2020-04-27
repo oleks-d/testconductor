@@ -4,6 +4,8 @@ import edu.testconductor.domain.*;
 import edu.testconductor.repos.GroupsRepo;
 import edu.testconductor.repos.UserRepo;
 import edu.testconductor.services.EmailServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,8 @@ import java.util.Optional;
 
 @Controller
 public class UsersController {
+
+    private static Logger logger = LoggerFactory.getLogger(UsersController.class);
 
     @Autowired
     private UserRepo usersRepo;

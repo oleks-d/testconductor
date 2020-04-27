@@ -1,5 +1,8 @@
 package edu.testconductor.config;
 
+import edu.testconductor.controllers.CustomErrorController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +24,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import javax.sql.DataSource;
 import javax.xml.ws.soap.Addressing;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +33,8 @@ import javax.xml.ws.soap.Addressing;
 @EnableAutoConfiguration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -54,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password")  // Password parameter, used in name attribute
                 // of the <input> tag. Default is 'password'.
                 .successHandler((req,res,auth)->{    //Success handler invoked after successful authentication
+                    logger.info("Login " + auth.getName() + " " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                     req.getSession().setAttribute("teacher", auth.getName());
                     req.getSession().setAttribute("exams", "");
                     req.getSession().setAttribute("warning", "");
@@ -64,12 +72,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // Skipped if successHandler() is used.
                 .failureHandler((req,res,exp)->{  // Failure handler invoked after authentication failure
                     String errMsg="";
+                    logger.info("Login failed: " + req.getParameter("username") + " " + req.getParameter("password") + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                     if(exp.getClass().isAssignableFrom(BadCredentialsException.class)){
                         errMsg="Невірний логін чи пароль. Invalid username or password.";
                     }else{
                         errMsg="Помилка / Error "+exp.getMessage();
                     }
                     req.getSession().setAttribute("warning", errMsg);
+
                     res.sendRedirect("/"); // Redirect user to login page with error message.
                 })
 

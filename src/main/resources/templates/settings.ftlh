@@ -21,7 +21,7 @@
                 </div>
                 <div class="form-group">
                 <label>Teacher Name</label>
-                <input class="form-control" type="text" name="teacherName" required/>
+                <input class="form-control" type="text" name="name" required/>
                 </div>
 
     <input type="hidden" name="_csrf" value="${_csrf.token}"/>

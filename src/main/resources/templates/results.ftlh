@@ -54,10 +54,18 @@
                 </tr>
 
                 <#list results as result>
-                    <tr>
+
+<tr>
                         <td><a href='/results?userEmail=${result.email}'> ${result.name}</a></td>
                         <td>${result.groupName}</td>
-                         <td>${result.result}/10</td>
+
+                                            <#if result.resultString?contains("TIMEOUT") >
+                                                <td class='text-danger'>
+                                            <#else>
+                                                <td>
+                                            </#if>
+
+                         ${result.result}/${result.exam.numberOfQuestions}</td>
                          <td>${result.email}</td>
                          <td>${result.time}</td>
                          <td><#if result.endTime?has_content>${result.endTime}</#if></td>

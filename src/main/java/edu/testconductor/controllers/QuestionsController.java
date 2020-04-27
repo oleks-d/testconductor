@@ -6,6 +6,8 @@ import edu.testconductor.domain.Theme;
 import edu.testconductor.repos.QuestionsRepo;
 import edu.testconductor.repos.ExamsRepo;
 import edu.testconductor.repos.ThemeRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ public class QuestionsController {
 
     @Autowired
     private ThemeRepo themeRepo;
+
+    private static Logger logger = LoggerFactory.getLogger(QuestionsController.class);
 
     @PreAuthorize("hasAuthority(2)")
     @GetMapping(value = "/questions")

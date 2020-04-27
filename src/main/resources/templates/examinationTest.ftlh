@@ -9,13 +9,10 @@
 
 <hr>
 <#if questions?has_content>
-<h2> Answer questions </h2>
+<h2> Answer questions / Дайте відповіді на питання</h2>
 
 <form action="/test" id = "testForm" method="post">
             <table class="table">
-                <tr>
-                    <th>Questions</th>
-                </tr>
 
                 <#list questions as question>
                     <tr>

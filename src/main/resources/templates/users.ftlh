@@ -104,7 +104,7 @@
                         <form action="/userDelete" method = "post">
                         <input type="hidden" name="userToDeleteID" value="${user.id?c}">
                         <input type="hidden" name="_csrf" value="${_csrf.token}">
-                        <button class="btn btn-danger" type='submit'>Delete</button>
+                        <button class="btn btn-danger" type="button" onclick = 'var result = confirm("Want to delete?"); if (result){ this.form.submit()};'  >Delete</button>
                         </form>
                     </td>
                     <td>
