@@ -12,7 +12,7 @@
 
     <#if timeout?has_content>
 <script>
-        var time = ${timeout};
+        var time = ${timeout?c};
 
 setInterval(function() {
 time = time - 1
@@ -34,7 +34,7 @@ document.getElementById("testForm").submit();
 
     <#if timeout?has_content>
 
-    <div class='row'><h2>Time left/Часу лишилось: <div id = 'timer'>${timeout} seconds</div></h2></div>
+    <div class='row'><h2>Time left/Часу лишилось: <div id = 'timer'>${timeout?c} seconds</div></h2></div>
         </#if>
 
 <#nested>

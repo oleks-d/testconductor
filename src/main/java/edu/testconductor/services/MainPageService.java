@@ -92,7 +92,7 @@ public class MainPageService {
             //String listOfProcessedExams = processedExams.stream().map(Object::toString).collect(Collectors.joining(","));
 
             String namesFoExamsToSearch = group.getGroupName();
-            exams = (ArrayList<Exam>) examsRepo.findAllByExamName(namesFoExamsToSearch);
+            exams = (ArrayList<Exam>) examsRepo.findAllByExamNameOrderByStartDateTimeDesc(namesFoExamsToSearch);
             for(String name : StudentGroup.getSpecialGroupNames()){ // add REWORKs
                 exams.addAll((ArrayList<Exam>)examsRepo.findAllByExamName(name));
             }
