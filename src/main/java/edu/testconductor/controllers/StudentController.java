@@ -100,13 +100,16 @@ public class StudentController {
             if (existingSession.getExam().getId().equals(examID)) { // was already generated
                 logger.warn("Test was already processed : " + user.getName() + " " + user.getEmail());
 
-                LocalDateTime expectedEndOfTest = LocalDateTime.parse(existingSession.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusMinutes(exam.getTimeForCompletionInMinutes());
+                LocalDateTime expectedEndOfTest = LocalDateTime.parse(existingSession.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusSeconds(exam.getTimeForCompletionInMinutes()*60);
                 LocalDateTime currentTime = LocalDateTime.now();
 
                 if(currentTime.isAfter(expectedEndOfTest)) {
-                    existingSession.setEndTime(expectedEndOfTest.format(DateTimeFormatter.ofPattern(dateTimeFormat)));
-                    existingSession.setResultString("");
-                    existingSession.setResult(0);
+                    if(existingSession.getEndTime() == null) {
+                        existingSession.setEndTime(expectedEndOfTest.format(DateTimeFormatter.ofPattern(dateTimeFormat)));
+                    }
+                    if(existingSession.getResult() == -1) {
+                        existingSession.setResult(0);
+                    }
                     sessionsRepo.save(existingSession);
 
                     if (lang.equals("ENG")) {
@@ -155,7 +158,7 @@ public class StudentController {
                 questions = generateQuestionsFor(exam);
             }
 
-            LocalDateTime expectedEndOfTest = LocalDateTime.parse(session.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusMinutes(exam.getTimeForCompletionInMinutes());
+            LocalDateTime expectedEndOfTest = LocalDateTime.parse(session.getTime(), DateTimeFormatter.ofPattern(dateTimeFormat)).plusSeconds(exam.getTimeForCompletionInMinutes()*60);
             LocalDateTime currentTime = LocalDateTime.now();
             Duration diff =  Duration.between(currentTime, expectedEndOfTest);
 
@@ -189,7 +192,6 @@ public class StudentController {
             }
         }
         StudentSession session = sessionsRepo.findByCode(allAnswers.get("studentCode"));
-
 
         if(session.getResult() > -1){
             if(lang.equals("ENG")) {
