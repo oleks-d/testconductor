@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Tests v1.1</title>
+        <title>Tests v1.2</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="https://remote.vnmu.edu.ua/vnmu-logo.png">

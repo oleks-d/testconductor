@@ -7,17 +7,15 @@
 <form action="/results" method="get">
                 <div class="form-group">
                     <label> Заняття: </label>
-                      <select id="examID" name="examID" onchange="this.form.submit()">
+                      <select id="examTheme" name="examTheme" onchange="this.form.submit()">
                             <option value="">-</option>
-                           <#list exams as exam>
-                                <option value="${exam.id?c}" <#if selectedExamID?has_content><#if exam.id == selectedExamID> selected </#if></#if> >${exam.examName} ${exam.theme} ${exam.startDateTime}</option>
+                           <#list themes as theme>
+                                <option value="${theme.name}" <#if selectedTheme?has_content><#if theme.name == selectedTheme> selected </#if></#if> >${theme.name}</option>
                            </#list>
+                           <option value="FINAL_ENG" <#if selectedTheme?has_content><#if 'Exam' == selectedTheme> selected </#if></#if> >Exam</option>
+                           <option value="FINAL_UKR" <#if selectedTheme?has_content><#if 'Залік' == selectedTheme> selected </#if></#if> >Залік</option>
                        </select>
                 </div>
-                </form>
-</div>
-<div class='col'>
-                       <form action="/results" method="get"  >
                 <div class="form-group">
                 <label> Група: </label><br>
                <select id="groupID" name="groupID" onchange="this.form.submit()">
@@ -25,15 +23,17 @@
                      <#list groups as group>
                          <option value="${group.id?c}" <#if selectedGroup?has_content><#if group.groupName == selectedGroup> selected </#if></#if> >${group.groupName}</option>
                      </#list>
+                     <option value="0" <#if selectedGroup?has_content><#if selectedGroup == 'REWORK'> selected </#if></#if>>REWORK</option>
                  </select>
                  </div>
-</form>
+                </form>
 </div>
+
 <div class='col'>
     <form action="/print_results" method="post">
     <#if results?has_content>
     <#list results as result>
-     <input type="hidden" name="${result.id}" value="${result.name} -- ${result.groupName} -- ${result.exam.theme} -- ${result.time} -- ${result.result}/10" />
+     <input type="hidden" name="${result.id}" value="${result.name} -- ${result.groupName} -- ${result.exam.theme} -- ${result.time} -- ${result.result}/${result.exam.numberOfQuestions}" />
      </#list>
      <input type="hidden" name="_csrf" value="${_csrf.token}"/>
     <div><input class="btn btn-primary" type="submit" value="Друк"/></div>
@@ -69,7 +69,25 @@
                          <td>${result.email}</td>
                          <td>${result.time}</td>
                          <td><#if result.endTime?has_content>${result.endTime}</#if></td>
-                        <td>${result.exam.examName} - ${result.exam.theme}<br><button onClick="hideShow('${result}')">Деталі</button><div style="display:none" id='${result}'>
+                        <td>
+
+                        <form action="/results" method='GET'>
+                        <input type='hidden' name='examTheme' value='${result.exam.theme}'/>
+                        <input type='hidden' name='examName' value='${result.exam.examName}'/>
+                        <button class="btn btn-link" onclick="this.form.submit()">
+                        ${result.exam.examName} -
+                        <#if result.exam.theme=='FINAL_UKR'>
+                        Залік
+                        <#else>
+                          <#if result.exam.theme=='FINAL_ENG'>
+                          Exam
+                          <#else>
+                          ${result.exam.theme}
+                          </#if>
+                          </#if>
+                         </button>
+                        </form>
+                        <br><button onClick="hideShow('${result}')">Деталі</button><div style="display:none" id='${result}'>
                         <#list result.resultString?split("\n") as x>
                             ${x}<br>
                         </#list>

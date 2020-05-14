@@ -65,13 +65,22 @@ public class RegistrationController {
     }
 
     @PostMapping(value = "/registration")
-    public ModelAndView addStudent(@RequestParam String password, @RequestParam String email, @RequestParam String studentName, @RequestParam Long groupID) {
+    public ModelAndView addStudent(@RequestParam String password, @RequestParam String repassword, @RequestParam String email, @RequestParam String studentName, @RequestParam Long groupID) {
         HashMap<String, Object> params = new HashMap<String, Object>();
 
+        Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
+        params.put("groups", groups);
+
+        if(!repassword.equals(password)){
+            params.put("warning", "Пароль не збігається з Повторним паролем / 'Password' and 'Re-type password' do not match");
+            return new ModelAndView("register", params);
+        }
         if(!email.toLowerCase().trim().matches("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+$")){
             params.put("warning", "Неправильний формат Email / Wrong format of Email \n" + email);
-            Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
-            params.put("groups", groups);
+            return new ModelAndView("register", params);
+        }
+        if(!studentName.contains(" ")){
+            params.put("warning", "Введіть повне ім'я / Enter Name and Surname");
             return new ModelAndView("register", params);
         }
 
@@ -79,11 +88,8 @@ public class RegistrationController {
 
         User userFromDB = usersRepo.findByUsername(email);
 
-
         if(userFromDB != null) {
             params.put("warning", "Користувач вже існує / User already exists! \n" + email);
-            Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
-            params.put("groups", groups);
             return new ModelAndView("register", params);
         }
 
@@ -91,10 +97,9 @@ public class RegistrationController {
 
         if(userFromDB != null) {
             params.put("warning", "Такий Email вже використано / Specified Email already used \n" + email);
-            Iterable<StudentGroup> groups = groupsRepo.findAllByOrderByGroupNameAsc();
-            params.put("groups", groups);
             return new ModelAndView("register", params);
         }
+
         String code = generateRegistrationCodeForStudent(studentName, email);
         String groupName = groupsRepo.getOne(groupID).getGroupName();
         if(groupName.contains(Character.toString((char)160))) {

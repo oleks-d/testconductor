@@ -54,6 +54,10 @@ public class MainPageService {
             groups = (Iterable<StudentGroup>)params.get("groups");
 
         if(user.isTeacher()) { //TEACHER
+
+            if(!params.containsKey("showOnlyMine"))
+                params.put("showOnlyMine", true);
+
             if (exams == null) exams =  (ArrayList<Exam>)examsRepo.findAllByOrderByStartDateTimeDesc(); //(ArrayList<Exam>)examsRepo.findAll();
             if (themes == null) themes = themeRepo.findAllByOrderByNameAsc();
             if (groups == null) groups = groupsRepo.findAllByOrderByGroupNameAsc(); //groupsRepo.findAll();

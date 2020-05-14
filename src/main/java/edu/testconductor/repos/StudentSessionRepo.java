@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface StudentSessionRepo extends CrudRepository<StudentSession, Long> {
     ArrayList<StudentSession> findAllByEmail(String email);
-    @Query("SELECT distinct a.exam FROM StudentSession a WHERE a.email = ?1")
+    @Query("SELECT distinct a.exam FROM StudentSession a WHERE a.email = '?1'")
     ArrayList<Long> findExamIDsByEmail(String email);
     StudentSession findByCode(String code);
 
@@ -25,6 +25,15 @@ public interface StudentSessionRepo extends CrudRepository<StudentSession, Long>
     int getCountOfFinishedSessionsByExamID(Exam exam);
 
     ArrayList<StudentSession> findAllByGroupName(String groupName);
+
+    @Query("SELECT a FROM StudentSession a WHERE a.exam.theme = ?1")
+    Iterable<StudentSession> findAllByExamTheme(String examTheme);
+
+    @Query("SELECT a FROM StudentSession a WHERE a.exam.examName = ?1 and a.exam.theme = ?2")
+    Iterable<StudentSession> findAllByGroupNameAndExamTheme(String groupName, String examTheme);
+
+    @Query("SELECT a FROM StudentSession a WHERE a.exam.examName = ?1")
+    Iterable<StudentSession> findAllByExamName(String examName);
 
     @Transactional
     void deleteAllByExamId(Long examID);

@@ -12,14 +12,8 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Table;
-import edu.testconductor.domain.Exam;
-import edu.testconductor.domain.StudentGroup;
-import edu.testconductor.domain.StudentSession;
-import edu.testconductor.domain.User;
-import edu.testconductor.repos.ExamsRepo;
-import edu.testconductor.repos.GroupsRepo;
-import edu.testconductor.repos.StudentSessionRepo;
-import edu.testconductor.repos.UserRepo;
+import edu.testconductor.domain.*;
+import edu.testconductor.repos.*;
 import edu.testconductor.services.EmailServiceImpl;
 import javafx.scene.text.Font;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +64,10 @@ public class ViewResultsController {
     private ExamsRepo examsRepo;
 
     @Autowired
+    private ThemeRepo themesRepo;
+
+
+    @Autowired
     private GroupsRepo groupsRepo;
 
     /*
@@ -85,12 +83,13 @@ public String showLoginWindow(@PathVariable("id") String id,
      */
     @PreAuthorize("hasAuthority(1)")
     @GetMapping(value = "/results")
-    public ModelAndView viewResults(@RequestParam("examID") Optional<Long> examID, @RequestParam("userEmail") Optional<String> userEmail, @RequestParam("groupID") Optional<Long> groupID) {
+    public ModelAndView viewResults(@RequestParam("examID") Optional<Long> examID, @RequestParam("userEmail") Optional<String> userEmail, @RequestParam("groupID") Optional<Long> groupID, @RequestParam("examTheme") Optional<String> examTheme , @RequestParam("examName") Optional<String> examName) {
 
-        Iterable<Exam> exams = examsRepo.findAllByOrderByStartDateTimeDesc();
-
+        //Iterable<Exam> exams = examsRepo.findAllByOrderByStartDateTimeDesc();
+        Iterable<Theme> themes = themesRepo.findAllByOrderByNameAsc();
         HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("exams", exams);
+        //params.put("exams", exams);
+        params.put("themes", themes);
         if (examID.isPresent()) {
             Iterable<StudentSession> results = sessionsRepo.findAllByExamId(examID.get());
             params.put("selectedExamID", examID.get());
@@ -101,15 +100,46 @@ public String showLoginWindow(@PathVariable("id") String id,
             Iterable<StudentSession> results = sessionsRepo.findAllByEmail(userEmail.get());
             //params.put("selectedExamID", examID.get());
             params.put("results", results);
-
         }
-        if (groupID.isPresent()) {
-            String groupName = groupsRepo.getOne(groupID.get()).getGroupName();
-            Iterable<StudentSession> results = sessionsRepo.findAllByGroupName(groupName);
+
+        String groupName = "";
+        if(examName.isPresent() && !examName.get().equals("")){
+            groupName = examName.get();
+        } else {
+            if (groupID.isPresent()) {
+                if (groupID.get() == 0) {
+                    groupName = "REWORK";
+                } else {
+                    groupName = groupsRepo.getOne(groupID.get()).getGroupName();
+                }
+            }
+        }
+
+        if (!groupName.equals("")  && (!examTheme.isPresent() || examTheme.get().equals(""))){
+            Iterable<StudentSession> results = null;
+            if(groupName.equals("REWORK")) {
+                results =  sessionsRepo.findAllByExamName(groupName);
+            } else {
+                results =  sessionsRepo.findAllByGroupName(groupName);
+            }
             params.put("selectedGroup", groupName);
             params.put("results", results);
+        } else {
+            if (!groupName.equals("") && examTheme.isPresent() && !examTheme.get().equals("")) {
 
+                Iterable<StudentSession> results = sessionsRepo.findAllByGroupNameAndExamTheme(groupName, examTheme.get());
+                params.put("selectedTheme", examTheme.get());
+                params.put("selectedGroup", groupName);
+                params.put("results", results);
+            } else {
+                if (examTheme.isPresent() && !examTheme.get().equals("")) {
+                    Iterable<StudentSession> results = sessionsRepo.findAllByExamTheme(examTheme.get());
+                    params.put("selectedTheme", examTheme.get());
+                    params.put("results", results);
+                }
+            }
         }
+
         Iterable<StudentGroup> groups = groupsRepo.findAll();
         params.put("groups", groups);
         return new ModelAndView("results", params);
@@ -121,14 +151,15 @@ public String showLoginWindow(@PathVariable("id") String id,
 
         Iterable<StudentSession> results = sessionsRepo.findAllByExamId(examID);
 
-        Iterable<Exam> exams = examsRepo.findAllByOrderByStartDateTimeDesc();
+        //Iterable<Exam> exams = examsRepo.findAllByOrderByStartDateTimeDesc();
+        Iterable<Theme> themes = themesRepo.findAllByOrderByNameAsc();
         Iterable<StudentGroup> groups = groupsRepo.findAll();
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("selectedExamID", examID);
         params.put("groups", groups);
         params.put("results", results);
-        params.put("exams", exams);
+        params.put("themes", themes);
         return new ModelAndView("results", params);
     }
 

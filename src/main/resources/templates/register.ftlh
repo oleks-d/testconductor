@@ -23,10 +23,17 @@
                       </div>
                 </div>
                 <div class="form-group">
-                <label>Повне Ім'я / Full Name</label>
+                <label>Повторіть пароль / Re-enter Password</label>
+                <input class="form-control" type="password" id="repassword" name="repassword" required/>
+                      <div class="invalid-feedback" for="password">
+                        Введіть пароль / Please specify Password
+                      </div>
+                </div>
+                <div class="form-group">
+                <label>Прізвище, Ім'я, по батькові/ Full Name and Surname</label>
                 <input class="form-control" type="text" id="studentName" name="studentName" required/>
                       <div class="invalid-feedback" for="studentName">
-                        Вкажіть ім'я / Please specify Student Name
+                        Вкажіть повне ім'я / Please specify Student Name
                       </div>
                 </div>
                 <div class="form-group">

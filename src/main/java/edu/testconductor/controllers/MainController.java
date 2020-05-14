@@ -69,7 +69,12 @@ public class MainController {
         HashMap<String, Object> params = new HashMap<String, Object>();
         parameters.keySet().forEach(key -> params.put(key, parameters.get(key)));
         params.put("message", message);
-        return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
+        params.put("teacherName", username);
+        params.put("showOnlyMine", true);
+
+        return searchExam("", username);
+
+        //return new ModelAndView("index", mainPageService.generateIndexPageParams(params));
     }
 
     @PreAuthorize("hasAuthority(1)")
@@ -79,7 +84,9 @@ public class MainController {
 
         if(!teacherName.equals("")) {
             teacherName = usersRepo.findByUsername(teacherName).getName();
-            params.put("showOnlyMine", "true");
+            params.put("showOnlyMine", true);
+        } else {
+            params.put("showOnlyMine", false);
         }
 
         if(!examName.equals("REWORK") && !examName.equals("")){
@@ -129,7 +136,7 @@ public class MainController {
         int numberOfQuestions = DEFAULT_NUMBER_OF_QUESTIONS;
         if (theme.matches("FINAL.*"))
             numberOfQuestions = DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM;
-        examsRepo.save(new Exam(examName, courseStartTime, courseEndTime, timeForCompletionInMinutes, numberOfQuestions,theme, teacherName));
+        examsRepo.save(new Exam(examName, courseStartTime, courseEndTime, timeForCompletionInMinutes, numberOfQuestions, theme, teacherName));
 
         redirectAttr.addFlashAttribute("message", "Заняття для " + examName +" з Теми " + theme + " додано");
         return new ModelAndView("redirect:/");

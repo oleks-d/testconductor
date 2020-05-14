@@ -21,13 +21,13 @@
                 </div>
 
                 <div class="form-group">
-                <label> Тема заняття (або Екзамен/FinalExam): </label>
+                <label> Тема заняття (або Залік/FinalExam): </label>
                <select id="theme" name="theme">
                      <#list themes as theme>
                          <option value="${theme.name}">${theme.name}</option>
                      </#list>
-                     <option value="FINAL_ENG">FinalExam</option>
-                     <option value="FINAL_UKR">Екзамен</option>
+                     <option value="FINAL_ENG">Exam</option>
+                     <option value="FINAL_UKR">Залік</option>
                  </select>
                  </div>
 
@@ -96,8 +96,8 @@
                       <option value="REWORK">REWORK</option>
                  </select>
 
-                <label> Лише мої групи</label><input type="checkbox" onchange="this.form.submit()" id="onlyMine" <#if showOnlyMine?has_content> checked value="true" <#else> value="false" </#if> onClick="teacher = document.getElementById('teacherName'); if (teacher.value=='' ) teacher.value ='${p.s.name}'; else teacher.value ='' "/>
-                <input type="hidden" id="teacherName" name="teacherName" <#if showOnlyMine?has_content>value="${p.s.name}<#else>value=""</#if>"/>
+                <label> Лише мої групи</label><input type="checkbox" onchange="this.form.submit()" id="onlyMine" <#if showOnlyMine?has_content> <#if showOnlyMine> checked value="true" </#if> <#else> value="false"</#if> onClick="teacher = document.getElementById('teacherName'); if (teacher.value=='' ) teacher.value ='${p.s.name}'; else teacher.value ='' "/>
+                <input type="hidden" id="teacherName" name="teacherName" <#if showOnlyMine?has_content><#if showOnlyMine>value="${p.s.name}"</#if><#else>value=""</#if>/>
                 </div>
                 </form>
 </div>
@@ -168,7 +168,15 @@
 
                 <tr>
                      <td>${exam.examName}</td>
-                    <td>${exam.theme}</td>
+                     <#if exam.theme == "FINAL_UKR">
+                     <td>Залік</td>
+                     <#else>
+                        <#if exam.theme == "FINAL_ENG">
+                            <td>Exam</td>
+                        <#else>
+                            <td>${exam.theme}</td>
+                        </#if>
+                     </#if>
                     <td>${exam.startDateTime}</td>
                     <td>${exam.endDateTime}</td>
                     <td>${exam.timeForCompletionInMinutes}</td>
@@ -178,7 +186,7 @@
                         <td>N/A</td>
                     <#else>
                     <#if exam.result != -2 && exam.result != -1>
-                        <td>${exam.result}</td>
+                        <td>${exam.result}/${exam.numberOfQuestions}</td>
                     <#else>
                         <td>
                            <form action="/start_test" method = "post" enddatetime="${exam.endDateTime}" startdatetime="${exam.startDateTime}" class="registrationLink">
@@ -200,7 +208,6 @@
                     <td>
                         <form action="/results" method = "get">
                         <input type="hidden" name="examID" value="${exam.id?c}">
-                        <input type="hidden" name="_csrf" value="${_csrf.token}">
                     <#if exam.result == -1>
                         <button class="btn btn-primary" type='submit'>Результати</button>
                     </#if>
