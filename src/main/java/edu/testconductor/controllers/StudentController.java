@@ -28,6 +28,8 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static edu.testconductor.controllers.MainController.DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM;
+
 @Controller
 public class StudentController {
 
@@ -256,7 +258,7 @@ public class StudentController {
         String UKR_LETTER3 = "у";
 
         int MAX_NUM_OF_QUESTIONS = exam.getNumberOfQuestions();
-
+        Random random = new Random();
         ArrayList<Question> results = new ArrayList<Question>();
         List<Question> allQuestionsForCourse = null;
         if(exam.getTheme().equals("FINAL_ENG")){
@@ -267,7 +269,7 @@ public class StudentController {
                     allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(theme.getName());
 
                     int MAX_NUM_OF_QUESTIONS_PER_THEME = results.size() + 1; // one question per theme
-                    Random random = new Random();
+
                     while (results.size() < MAX_NUM_OF_QUESTIONS_PER_THEME) {
                         Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                         if (!results.contains(candidateItem))
@@ -275,6 +277,15 @@ public class StudentController {
                     }
                 }
             }
+
+            while (results.size() < MAX_NUM_OF_QUESTIONS) {
+                Theme randomtheme = allThemes.get(random.nextInt(allThemes.size() - 1));
+                allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
+                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
+                if (!results.contains(candidateItem))
+                    results.add(candidateItem);
+            }
+
         } else if(exam.getTheme().equals("FINAL_UKR")){
 
             ArrayList<Theme> allThemes = (ArrayList<Theme>) themeRepo.findAllByOrderByNameAsc();
@@ -284,7 +295,7 @@ public class StudentController {
                     allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(theme.getName());
 
                     int MAX_NUM_OF_QUESTIONS_PER_THEME = results.size() + 1; // one question per theme
-                    Random random = new Random();
+
                     while (results.size() < MAX_NUM_OF_QUESTIONS_PER_THEME) {
                         Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                         if (!results.contains(candidateItem))
@@ -293,10 +304,17 @@ public class StudentController {
                 }
             }
 
+            while (results.size() < MAX_NUM_OF_QUESTIONS) {
+                Theme randomtheme = allThemes.get(random.nextInt(allThemes.size() - 1));
+                allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
+                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
+                if (!results.contains(candidateItem))
+                    results.add(candidateItem);
+            }
+
         }  else {
             allQuestionsForCourse = questionsRepo.findAllByTheme(exam.getTheme());
 
-            Random random = new Random();
             while (results.size() < MAX_NUM_OF_QUESTIONS) {
                 Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
                 if (!results.contains(candidateItem))

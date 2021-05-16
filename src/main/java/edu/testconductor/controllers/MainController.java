@@ -48,7 +48,7 @@ public class MainController {
 
     //TODO make custom
     int DEFAULT_NUMBER_OF_QUESTIONS = 10;
-    int DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM = 16;
+    public static int DEFAULT_NUMBER_OF_QUESTIONS_FOR_EXAM = 20;
 
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
 
