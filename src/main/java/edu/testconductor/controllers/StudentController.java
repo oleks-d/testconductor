@@ -280,10 +280,12 @@ public class StudentController {
 
             while (results.size() < MAX_NUM_OF_QUESTIONS) {
                 Theme randomtheme = allThemes.get(random.nextInt(allThemes.size() - 1));
-                allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
-                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
-                if (!results.contains(candidateItem))
-                    results.add(candidateItem);
+                if (!randomtheme.getName().contains(UKR_LETTER1) && !randomtheme.getName().contains(UKR_LETTER2) && !randomtheme.getName().contains(UKR_LETTER3)) {
+                    allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
+                    Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size() - 1));
+                    if (!results.contains(candidateItem))
+                        results.add(candidateItem);
+                }
             }
 
         } else if(exam.getTheme().equals("FINAL_UKR")){
@@ -306,10 +308,12 @@ public class StudentController {
 
             while (results.size() < MAX_NUM_OF_QUESTIONS) {
                 Theme randomtheme = allThemes.get(random.nextInt(allThemes.size() - 1));
-                allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
-                Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size()-1));
-                if (!results.contains(candidateItem))
-                    results.add(candidateItem);
+                if (randomtheme.getName().contains(UKR_LETTER1) || randomtheme.getName().contains(UKR_LETTER2) || randomtheme.getName().contains(UKR_LETTER3)) {
+                    allQuestionsForCourse = (ArrayList<Question>) questionsRepo.findAllByTheme(randomtheme.getName());
+                    Question candidateItem = allQuestionsForCourse.get(random.nextInt(allQuestionsForCourse.size() - 1));
+                    if (!results.contains(candidateItem))
+                        results.add(candidateItem);
+                }
             }
 
         }  else {

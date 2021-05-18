@@ -4,7 +4,7 @@
 
 <nav class="fixed-top navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href="#">
-    <img alt="" src="https://remote.vnmu.edu.ua/vnmu-logo.png" width="30" height="30" alt="">
+    <img alt="" src="https://remote.vnmu.edu.ua/img/logo.png" width="30" height="30" alt="">
   </a>
   <a class="navbar-brand" href="#">Tests</a>
 

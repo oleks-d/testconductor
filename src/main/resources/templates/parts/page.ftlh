@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Tests v1.3</title>
+        <title>Tests v1.4</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="https://remote.vnmu.edu.ua/vnmu-logo.png">
+<link rel="icon" href="https://remote.vnmu.edu.ua/img/logo.png">
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous">
